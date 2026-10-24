@@ -221,7 +221,7 @@ def generate_pdf_bytes(html_str: str) -> bytes:
     """
     try:
         from weasyprint import HTML
-        if "<style>" not in html_str:
+        if True:
             import prompts
             html_str = prompts.HTML_PDF_TEMPLATE.format(html_content=html_str)
         return HTML(string=html_str).write_pdf()
@@ -251,7 +251,11 @@ def generate_docx_bytes(html_str: str) -> bytes:
     soup = BeautifulSoup(html_str, 'html.parser')
     root = soup.body if soup.body else soup
     
-    for el in root.children:
+    for el in root.find_all(['h1', 'h2', 'h3', 'p', 'div', 'ul']):
+        if el.name in ['p', 'div'] and el.find(['h1', 'h2', 'h3', 'p', 'div', 'ul']):
+            continue
+        if el.find_parent(['ul', 'li']):
+            continue
         if el.name is None:
             continue
         tag = el.name.lower()

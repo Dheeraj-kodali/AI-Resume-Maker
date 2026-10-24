@@ -271,7 +271,7 @@ def show_info(message: str):
 st.markdown("""
 <div class="hero-bar">
     <div class="hero-logo">Resume<span>AI</span></div>
-    <div class="hero-tagline">Tailor your resume to any job. One page. Always.</div>
+    <div class="hero-tagline">Tailor your resume to any job. Relevant. Clear. Evidence-based.</div>
     <div class="hero-steps">
         <span class="step-pill">① Upload</span>
         <span class="step-arrow">→</span>
@@ -423,11 +423,11 @@ if st.session_state['optimized_html']:
     if "Local Formatting" in st.session_state.get('active_provider', ''):
         show_success("Changes saved and preview updated locally!")
     else:
-        show_success(f"Tailored successfully using {st.session_state['active_provider']} and auto-fit to one page!")
+        show_success(f"Tailored successfully using {st.session_state['active_provider']}! Review all details before using this resume.")
     
     # 1. Preview Panel Tabs (A4 Preview and Plain Text Output)
     preview_tab, text_tab = st.tabs([
-        "👁️ Live Single-Page A4 Preview",
+        "👁️ Resume Preview",
         "📝 Extracted Plain Text Resume"
     ])
     
@@ -497,7 +497,7 @@ else:
         <div style="font-size: 64px; margin-bottom: 20px;">📄</div>
         <h3>Resume Preview Workspace</h3>
         <p style="margin: 0 auto 25px auto; font-size: 14px; max-width: 450px; color: #64748b; line-height: 1.5;">
-            Provide your existing resume and job details above, then click <strong>Optimize & Tailor Resume</strong> to generate your single-page tailored output.
+            Provide your existing resume and job details above, then click <strong>Optimize & Tailor Resume</strong> to generate your tailored output.
         </p>
         <div style="max-width: 250px; margin: 0 auto; display: flex; flex-direction: column; gap: 8px;">
             <div class="skeleton-line" style="width: 100%;"></div>

@@ -260,7 +260,7 @@ def run_resume_optimization(resume_text: str, job_desc_text: str, job_role: str,
     else:
         stage2_providers = providers
         
-    stage2_prompt = get_stage2_prompt(stage1_text)
+    stage2_prompt = get_stage2_prompt(stage1_text, resume_text)
     stage2_sys = STAGE2_SYSTEM_PROMPT
     
     final_html = ""
@@ -322,6 +322,11 @@ def run_resume_optimization(resume_text: str, job_desc_text: str, job_role: str,
         )
         return {"success": False, "content": error_msg, "provider": "Fallback failure", "errors": errors}
         
+    from output_validation import validate_output
+    issues = validate_output(resume_text, final_html)
+    if issues:
+        return {"success": False, "content": "The generated resume failed accuracy checks. Please retry. " + "; ".join(issues), "provider": "Validation", "errors": issues}
+
     combined_provider = f"{stage1_provider_name} (Content) → {stage2_provider_name} (Format)"
     return {"success": True, "content": final_html, "provider": combined_provider, "errors": errors}
 
