@@ -16,6 +16,9 @@ class AccuracyTests(unittest.TestCase):
     def test_valid_source_contacts(self):
         self.assertEqual(validate_output(SOURCE, '<h1>Alex Example</h1><p>alex@example.com</p><p>BSc 2025</p>'), [])
 
+    def test_source_profile_link_without_scheme(self):
+        self.assertEqual(validate_output(SOURCE + '\ngithub.com/alex-example', '<h1>Alex Example</h1><p>alex@example.com</p><a href="https://github.com/alex-example">GitHub</a>'), [])
+
     def test_missing_or_invented_email(self):
         for contact in ['', 'alex.other@example.com']:
             self.assertTrue(validate_output(SOURCE, f'<h1>Alex Example</h1><p>{contact}</p>'))

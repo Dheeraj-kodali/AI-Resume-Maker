@@ -22,6 +22,9 @@ def validate_output(source, html):
     for link in soup.find_all('a'):
         href = link.get('href', '')
         target = href.removeprefix('mailto:').removeprefix('tel:')
+        if href.startswith(('https://', 'http://')):
+            # PDF text often omits the scheme from an otherwise exact profile URL.
+            target = re.sub(r'^https?://', '', href).rstrip('/')
         if not target or target == '#' or target not in source or not href.startswith(('https://', 'http://', 'mailto:', 'tel:')):
             issues.append('Unsupported or unsafe link')
             break
