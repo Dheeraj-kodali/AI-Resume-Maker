@@ -1,5 +1,6 @@
 import io
 import unittest
+from unittest.mock import patch
 from docx import Document
 from output_validation import validate_output
 from document_parser import generate_docx_bytes
@@ -7,6 +8,11 @@ from document_parser import generate_docx_bytes
 SOURCE = 'Alex Example\nalex@example.com\nPython, Git\nCSV Cleaner\nBSc 2025'
 
 class AccuracyTests(unittest.TestCase):
+    def test_managed_secrets_without_local_file(self):
+        import api_router
+        with patch.dict('os.environ', {}, clear=True), patch.object(api_router.st, 'secrets', {'GEMINI_KEY_1': 'fictional-test-key'}), patch.object(api_router, 'secrets_file_exists', return_value=False):
+            self.assertEqual(api_router.get_key('GEMINI_KEY_1'), 'fictional-test-key')
+
     def test_valid_source_contacts(self):
         self.assertEqual(validate_output(SOURCE, '<h1>Alex Example</h1><p>alex@example.com</p><p>BSc 2025</p>'), [])
 

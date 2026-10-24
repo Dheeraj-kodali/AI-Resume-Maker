@@ -42,13 +42,13 @@ def get_key(name: str) -> str:
     if val:
         return val
         
-    # 2. Try streamlit secrets only if secrets file is present
-    if secrets_file_exists():
-        try:
-            if name in st.secrets:
-                return st.secrets[name]
-        except Exception:
-            pass
+    # Managed Streamlit Cloud secrets need not exist at one of our local paths.
+    try:
+        value = st.secrets.get(name, "")
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+    except (FileNotFoundError, KeyError):
+        pass
             
     return ""
 
@@ -62,6 +62,8 @@ def get_providers():
     # 1. Gemini keys (supports up to 6 agents)
     for i in range(1, 7):
         key = get_key(f"GEMINI_KEY_{i}")
+        if i == 1 and not key:
+            key = get_key("GEMINI_API_KEY") or get_key("GOOGLE_API_KEY")
         if key:
             providers.append({"type": "gemini", "key": key, "name": f"Gemini Agent {i}"})
             
@@ -177,7 +179,7 @@ def run_resume_optimization(resume_text: str, job_desc_text: str, job_role: str,
     if not providers:
         return {
             "success": False,
-            "content": "<h2>Error: No API keys configured.</h2><p>Please check your Hugging Face Space secrets or local environment variables.</p>",
+            "content": "<h2>No AI provider key is configured.</h2><p>Add GEMINI_KEY_1 in your hosting service's Secrets settings, then restart the app.</p>",
             "provider": "None",
             "errors": ["No active API keys found."]
         }
