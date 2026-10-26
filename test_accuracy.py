@@ -8,6 +8,17 @@ from document_parser import generate_docx_bytes
 SOURCE = 'Alex Example\nalex@example.com\nPython, Git\nCSV Cleaner\nBSc 2025'
 
 class AccuracyTests(unittest.TestCase):
+    def test_groq_fallback_after_gemini_failure(self):
+        import api_router
+        providers = [{'type': 'gemini', 'key': 'test', 'name': 'Gemini'},
+                     {'type': 'groq', 'key': 'test', 'name': 'Groq'}]
+        html = '<h1>Alex Example</h1><p>alex@example.com</p><p>Python, Git; BSc 2025</p>'
+        with patch.object(api_router, 'get_providers', return_value=providers), patch.object(api_router, 'call_gemini', side_effect=Exception('503 unavailable')), patch.object(api_router, 'call_openai_compatible', side_effect=['Alex Example draft', html]) as groq, patch.object(api_router.time, 'sleep'):
+            result = api_router.run_resume_optimization(SOURCE, '', 'Engineer', None, 'Microsoft')
+        self.assertTrue(result['success'])
+        self.assertEqual(groq.call_count, 2)
+        self.assertEqual(result['provider'], 'Groq (Content) → Groq (Format)')
+
     def test_gemini_model_and_text_parts(self):
         import api_router
         from unittest.mock import Mock

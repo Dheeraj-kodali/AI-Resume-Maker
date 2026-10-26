@@ -217,7 +217,7 @@ def run_resume_optimization(resume_text: str, job_desc_text: str, job_role: str,
                 res = call_openai_compatible(
                     url="https://api.groq.com/openai/v1/chat/completions",
                     key=p["key"],
-                    model="llama-3.3-70b-versatile",
+                    model=get_key("GROQ_MODEL") or "openai/gpt-oss-120b",
                     sys_prompt=stage1_sys,
                     prompt=stage1_prompt,
                     image_b64=None,
@@ -288,7 +288,7 @@ def run_resume_optimization(resume_text: str, job_desc_text: str, job_role: str,
                 res = call_openai_compatible(
                     url="https://api.groq.com/openai/v1/chat/completions",
                     key=p["key"],
-                    model="llama-3.3-70b-versatile",
+                    model=get_key("GROQ_MODEL") or "openai/gpt-oss-120b",
                     sys_prompt=stage2_sys,
                     prompt=stage2_prompt,
                     image_b64=None,
@@ -371,7 +371,7 @@ def run_stage2_only(tailored_text: str) -> dict:
                 res = call_openai_compatible(
                     url="https://api.groq.com/openai/v1/chat/completions",
                     key=p["key"],
-                    model="llama-3.3-70b-versatile",
+                    model=get_key("GROQ_MODEL") or "openai/gpt-oss-120b",
                     sys_prompt=stage2_sys,
                     prompt=stage2_prompt,
                     image_b64=None,
@@ -406,3 +406,4 @@ def run_stage2_only(tailored_text: str) -> dict:
         return {"success": False, "content": error_msg, "provider": "Fallback failure", "errors": errors}
         
     return {"success": True, "content": final_html.strip(), "provider": stage2_provider_name, "errors": errors}
+
