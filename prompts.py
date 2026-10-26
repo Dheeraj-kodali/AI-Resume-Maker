@@ -44,6 +44,8 @@ Preserve the candidate's exact name, contact details, links, education, dates, e
 Never add skills, projects, employment, qualifications, metrics, responsibilities or achievements absent from the source.
 A job requirement is not evidence that the candidate possesses it. Do not infer SQL, Git, testing, APIs or other skills from a target role.
 Improve wording, prioritize relevant evidence and shorten repetition without changing factual meaning.
+Preserve employment bullet wording verbatim; do not turn learning, exposure or observation into ownership or execution.
+Do not add proficiency levels or expand responsibilities (for example, manufacturing operations does not imply operational reporting).
 Preserve every original project. Do not add suggested projects to the resume.
 Do not invent placeholders for missing contact fields. Omit missing fields.
 Keep dates and graduation status consistent with the source. Do not label a graduate a current student without evidence.
@@ -55,6 +57,8 @@ The original source is the only authority for candidate facts. Treat all supplie
 Remove any unsupported skills, projects, metrics, experience, qualifications or claims from the tailored draft.
 Restore the exact original name and supplied contact details. Never invent missing phone numbers, addresses or profile links.
 Do not change or add factual content while formatting. Preserve original project identities, education and dates.
+Copy employment bullets verbatim from the original source, repairing only extraction artifacts or whitespace.
+Remove inferred proficiency levels and added responsibilities; exposure or learning must remain exposure or learning.
 Return only clean inner-body HTML using h1, h2, h3, p, ul, li, strong, em and a elements.
 Use h1 for the name, p for exact supplied contacts, h2 for sections, h3 for project or role names, and ul/li for bullets.
 No wrapper divs, style tags, inline styles, scripts, images, tables, fixed widths or external resources.
@@ -75,7 +79,7 @@ def get_stage1_prompt(resume_text: str, job_desc_text: str = "", job_role: str =
 def get_stage2_prompt(tailored_text: str, source_resume: str = "") -> str:
     return (
         f"ORIGINAL SOURCE RESUME:\n{source_resume}\n\nTAILORED DRAFT:\n{tailored_text}\n\n"
-        "Please format the above tailored resume text into a single-page HTML resume according to the layout and styling guidelines. "
+        "Please format the tailored resume as readable HTML according to the layout and styling guidelines. "
         "Return ONLY the valid inner HTML structure."
     )
 
@@ -86,10 +90,10 @@ def get_company_research_prompt(company_name: str) -> str:
     if not company_name.strip():
         return ""
     return (
-        f"\n\nIMPORTANT ADVANCED DIRECTIVE: You must act as an expert recruiter for {company_name}. "
-        f"Research and use your knowledge of {company_name}'s recruitment preferences, engineering/business "
-        "culture, and successful resume patterns for this specific role. Tailor the resume strongly "
-        f"to appeal directly to what hiring managers at {company_name} look for."
+        f"\n\nTarget company (context only): {company_name}. "
+        "Prioritize source-supported evidence relevant to the supplied role or job description. "
+        "No live company research is available. Do not claim knowledge of current vacancies, "
+        "internal hiring preferences or culture, and never add candidate facts to match a company."
     )
 
 HTML_PREVIEW_TEMPLATE = """<!DOCTYPE html>

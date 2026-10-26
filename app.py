@@ -332,7 +332,7 @@ with tab_role:
         placeholder="e.g. Senior Python Backend Developer, Data Scientist, Frontend Developer...",
         label_visibility="collapsed"
     )
-    st.markdown('<div style="font-size: 12px; color: #64748b; margin-top: 8px;">💡 If a full job description is unavailable, the AI will research and tailor the resume based on standard industry expectations for this role.</div>', unsafe_allow_html=True)
+    st.markdown('<div style="font-size: 12px; color: #64748b; margin-top: 8px;">💡 If a full job description is unavailable, the AI will tailor wording using the supplied role and your existing resume. No live vacancy research is performed.</div>', unsafe_allow_html=True)
     
 with tab_img:
     uploaded_image = st.file_uploader(
@@ -357,7 +357,7 @@ if enable_advanced:
     company_name = st.text_input(
         "Target Company Name", 
         placeholder="e.g. Google, CyberNext, Stripe...",
-        help="Directs the fallback agent to tailor wording and culture fit to this company's hiring guidelines."
+        help="Uses the company name as context. Supply a job description for vacancy-specific tailoring; no live company research is performed."
     )
 
 st.markdown('</div>', unsafe_allow_html=True)
@@ -506,3 +506,4 @@ else:
         </div>
     </div>
     """, unsafe_allow_html=True)
+
