@@ -1,6 +1,6 @@
 # Run and review the assessment version
 
-This branch contains the revised prompts, contact/numeric/HTML safeguards and DOCX export fix. The old Hugging Face app does not yet contain them. See ASSESSMENT_PROMPTS.md for exact prompts and test status.
+This branch contains the revised prompts, contact/numeric/HTML safeguards and DOCX export fix. The assessment deployment is https://resumeai-dheeraj-assessment.streamlit.app/. See ASSESSMENT_PROMPTS.md for exact prompts and test status.
 
 ## Local setup
 
@@ -13,7 +13,7 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-Set at least one provider credential in your local environment or Streamlit secret storage. Supported names: GEMINI_KEY_1 through GEMINI_KEY_6, GROQ_KEY, OPENROUTER_KEY. Never commit credentials. A single Gemini key can serve both stages.
+Set at least one provider credential in your local environment or Streamlit secret storage. Supported names: GEMINI_KEY_1 through GEMINI_KEY_6, GEMINI_API_KEY, GOOGLE_API_KEY, GROQ_KEY, OPENROUTER_KEY. Gemini defaults to gemini-3.8-flash; GEMINI_MODEL optionally overrides it. Never commit credentials. A single Gemini key can serve both stages.
 
 For PDF export install the operating-system libraries listed in packages.txt. Linux example:
 
@@ -37,4 +37,5 @@ The deterministic checks cannot detect every unsupported skill or semantic claim
 
 ## Assessment submission
 
-The assignment accepts a repository/files with run instructions when online hosting is unavailable. Supply this branch or its ZIP, ASSESSMENT_PROMPTS.md, and your own video of at least two minutes. Explain tools, actual prompt revisions, approach, challenges and observed outcome. Disclose that the revised prompts await live-provider testing until credentials/deployment access are available.
+The assignment accepts a repository/files with run instructions when online hosting is unavailable. Supply this branch or its ZIP, ASSESSMENT_PROMPTS.md, and your own video of at least two minutes. Explain tools, actual prompt revisions, approach, challenges and observed outcome. Current live verification is blocked by a temporary Gemini HTTP 503 high-demand response. Do not describe revised generation or downloads as verified until a complete run succeeds.
+

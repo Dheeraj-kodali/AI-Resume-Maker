@@ -12,11 +12,11 @@ Assessment changes: https://github.com/Dheeraj-kodali/AI-Resume-Maker/tree/asses
 
 Existing live app: https://fournew-resumeai-optimizer.hf.space
 
-**Status:** The existing live workflow was tested successfully with fictional PDF and DOCX inputs. Accuracy and export defects were found. Revised code passed five focused local regression tests and Python compilation. It is on the assessment GitHub branch. Deployment was rejected by Hugging Face for lack of write authorization; the live app has not yet received these fixes. Revised model outputs have not yet been evaluated. This document must be updated after that test before describing the new version as verified.
+**Status:** Updated 26 October 2026. The revised application is deployed at https://resumeai-dheeraj-assessment.streamlit.app/. Eight local regression tests pass. The saved Gemini key reaches the API. Live testing identified a retired model; the router was updated to gemini-3.8-flash. The latest Microsoft AI/ML Engineer test with the user-provided PDF returned HTTP 503 (temporary provider high demand), including a retry. Successful generation and download verification for the revised version remain pending.
 
 ## AI tools and architecture
 
-Codex was used in this assessment session to inspect the repository, run browser tests, revise code/prompts and prepare documentation. The live application reported Gemini Agent 1 for content tailoring and Gemini Agent 2 for formatting. The router's Gemini model is gemini-2.5-flash. Groq and OpenRouter fallback code exists but their live execution was not verified. Provider fallback is infrastructure, not evidence of prompt refinement.
+Codex was used in this assessment session to inspect the repository, run browser tests, revise code/prompts and prepare documentation. The live application reported Gemini Agent 1 for content tailoring and Gemini Agent 2 for formatting. The original tests used gemini-2.5-flash; the revised router defaults to gemini-3.8-flash and accepts an optional GEMINI_MODEL setting. Groq and OpenRouter fallback code exists but their live execution was not verified. Provider fallback is infrastructure, not evidence of prompt refinement.
 
 The two-stage design separates content adaptation from formatting. The revision additionally supplies the original resume to the formatting stage so it can check the draft against the source. Deterministic output checks reject changed or missing emails, new numeric claims, unsupported links and unsafe markup. These checks are incomplete safeguards, not a proof that every semantic claim is true.
 
@@ -50,7 +50,7 @@ Synthetic test vacancy: Junior Python Developer. Required: Python, Git, CSV proc
 | Original prompts, PDF input | Live app | Generated successfully after waiting; invented an API project, skills and contact details. |
 | Original PDF download | Reopened and rendered | One page, but content extended beyond the right edge. |
 | Original DOCX download | Reopened | All text collapsed into one paragraph. |
-| Revised source-grounded prompts | Implemented | Not yet run against a live model; deployment access is pending. |
+| Revised source-grounded prompts | Implemented | Live request attempted; provider returned temporary HTTP 503. Completed output verification is pending. |
 | Email, number, markup and nested DOCX regression checks | Local unittest | Five tests passed. |
 | Python compilation | Local | Passed. |
 
@@ -324,3 +324,4 @@ def get_company_research_prompt(company_name: str) -> str:
 - Historical prompt conversations are unavailable; the document supplies recovered application prompts and actual current revisions without inventing development history.
 - The user is responsible for recording the minimum two-minute video. No video has been recorded by this agent.
 - No submission email has been sent.
+
