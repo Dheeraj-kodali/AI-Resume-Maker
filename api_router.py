@@ -81,9 +81,10 @@ def get_providers():
 
 def call_gemini(key: str, sys_prompt: str, prompt: str, image_b64: str) -> str:
     """
-    Call Gemini API using the newer stable gemini-2.5-flash model.
+    Call the configured Gemini model, defaulting to the current Flash model.
     """
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={key}"
+    model = get_key("GEMINI_MODEL") or "gemini-3.8-flash"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
     
     parts = [{"text": prompt}]
     
@@ -102,13 +103,10 @@ def call_gemini(key: str, sys_prompt: str, prompt: str, image_b64: str) -> str:
             
     payload = {
         "contents": [{"parts": parts}],
-        "systemInstruction": {"parts": [{"text": sys_prompt}]},
-        "generationConfig": {
-            "temperature": 0.2
-        }
+        "systemInstruction": {"parts": [{"text": sys_prompt}]}
     }
     
-    response = requests.post(url, json=payload, timeout=30)
+    response = requests.post(url, headers={"x-goog-api-key": key}, json=payload, timeout=90)
     if response.status_code != 200:
         raise Exception(f"Gemini API returned status {response.status_code}: {response.text}")
         
@@ -119,9 +117,12 @@ def call_gemini(key: str, sys_prompt: str, prompt: str, image_b64: str) -> str:
         raise Exception(f"Gemini safety block: {data['promptFeedback']['blockReason']}")
         
     try:
-        text = data['candidates'][0]['content']['parts'][0]['text']
+        text = "\n".join(part['text'] for part in data['candidates'][0]['content']['parts']
+                         if 'text' in part and not part.get('thought'))
+        if not text.strip():
+            raise ValueError("Gemini returned no resume text.")
         return text
-    except KeyError:
+    except (KeyError, IndexError):
         raise Exception(f"Unexpected response structure: {data}")
 
 def call_openai_compatible(url: str, key: str, model: str, sys_prompt: str, prompt: str, image_b64: str, provider_name: str) -> str:
