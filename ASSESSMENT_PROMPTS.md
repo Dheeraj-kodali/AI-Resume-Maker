@@ -1,116 +1,50 @@
-# ResumeAI Optimizer — Prompt Engineering Documentation
+# ResumeAI — Prompt Engineering Assessment
 
-Prepared for the AI Growth & Automation Associate assessment, 24 October 2026.
+Updated 26 October 2026. Technology-domain project for the AI Growth & Automation Associate assessment.
 
-## Project and purpose
+## Deliverables
 
-ResumeAI is an existing Python/Streamlit technology project that adapts a source resume to a job description. It accepts PDF or DOCX inputs and offers a preview and PDF/DOCX downloads. The assessment work reuses this project rather than claiming it was built from scratch today.
+- Working project: https://resumeai-dheeraj-assessment.streamlit.app/
+- Assessment source: https://github.com/Dheeraj-kodali/AI-Resume-Maker/tree/assessment/accuracy-fixes
+- Run instructions: ASSESSMENT_RUN.md in the repository.
+- This document contains recovered original prompts, current prompts, actual revisions, and observed tests.
+- The candidate records the required video of at least two minutes. No submission email has been sent.
 
-Project: https://github.com/Dheeraj-kodali/AI-Resume-Maker
+## Approach and tools
 
-Assessment changes: https://github.com/Dheeraj-kodali/AI-Resume-Maker/tree/assessment/accuracy-fixes
+The existing ResumeAI project was reused and improved rather than rebuilt. Python and Streamlit provide the interface; pypdf/python-docx extract source text; a two-stage model workflow tailors content then verifies/formats it; WeasyPrint and python-docx create downloads. Codex assisted with inspection, debugging, prompt revisions, deployment, and verification.
 
-Existing live app: https://fournew-resumeai-optimizer.hf.space
+Gemini defaults to gemini-3.8-flash. Groq defaults to openai/gpt-oss-120b. A failed provider request advances to the next configured provider. Both stages may use the same working provider. OpenRouter code exists but was not configured or verified in this assessment. Multiple keys do not guarantee availability or bypass provider limits.
 
-**Status:** Updated 26 October 2026. The revised application is deployed at https://resumeai-dheeraj-assessment.streamlit.app/. Eight local regression tests pass. The saved Gemini key reaches the API. Live testing identified a retired model; the router was updated to gemini-3.8-flash. The latest Microsoft AI/ML Engineer test with the user-provided PDF returned HTTP 503 (temporary provider high demand), including a retry. Successful generation and download verification for the revised version remain pending.
+The original source is supplied to both stages. Output checks reject altered/missing emails, new numeric claims, unsupported links, and unsafe HTML. These checks do not prove semantic accuracy; human review remains necessary. Role/company tailoring uses supplied context, not live vacancy research.
 
-## AI tools and architecture
+## Actual iteration history
 
-Codex was used in this assessment session to inspect the repository, run browser tests, revise code/prompts and prepare documentation. The live application reported Gemini Agent 1 for content tailoring and Gemini Agent 2 for formatting. The original tests used gemini-2.5-flash; the revised router defaults to gemini-3.8-flash and accepts an optional GEMINI_MODEL setting. Groq and OpenRouter fallback code exists but their live execution was not verified. Provider fallback is infrastructure, not evidence of prompt refinement.
-
-The two-stage design separates content adaptation from formatting. The revision additionally supplies the original resume to the formatting stage so it can check the draft against the source. Deterministic output checks reject changed or missing emails, new numeric claims, unsupported links and unsafe markup. These checks are incomplete safeguards, not a proof that every semantic claim is true.
-
-## Reproducible test inputs
-
-Fictional source resume:
-
-```text
-Alex Example - Fictional Test Candidate
-Junior Python Developer
-alex@example.com
-Skills: Python, CSV processing, Git
-Project: CSV Cleaner - Built a Python script to remove duplicate rows from CSV files.
-Education: BSc Computer Science, Example University, 2025
-No employment experience or certifications.
-```
-
-The PDF fixture used the equivalent shorter project description: “Project: CSV Cleaner - Python script removing duplicate CSV rows.”
-
-Target description:
-
-```text
-Synthetic test vacancy: Junior Python Developer. Required: Python, Git, CSV processing, SQL, REST APIs and unit testing. Build data cleaning scripts. No experience required.
-```
-
-## Observed results and iteration
-
-| Version/check | Execution | Result |
+| Revision | Observation | Change |
 | --- | --- | --- |
-| Original prompts, DOCX input | Live app | Generated and downloaded both formats; invented two projects and multiple skills; omitted source email. |
-| Original prompts, PDF input | Live app | Generated successfully after waiting; invented an API project, skills and contact details. |
-| Original PDF download | Reopened and rendered | One page, but content extended beyond the right edge. |
-| Original DOCX download | Reopened | All text collapsed into one paragraph. |
-| Revised source-grounded prompts | Implemented | Live request attempted; provider returned temporary HTTP 503. Completed output verification is pending. |
-| Email, number, markup and nested DOCX regression checks | Local unittest | Five tests passed. |
-| Python compilation | Local | Passed. |
+| Original project | Synthetic PDF and DOCX inputs generated invented skills/projects and altered contacts. | Removed instructions to add unsupported claims; source-grounded both stages. |
+| Original exports | PDF clipped at the right edge; Word collapsed into one paragraph. | Owned PDF styling; preserve Word headings, paragraphs and list items. |
+| Managed hosting | Saved keys were not detected due to local-file assumptions. | Read Streamlit managed secrets directly; support common Gemini key aliases. |
+| Provider compatibility | Gemini rejected the older model; Groq rejected the older Llama model for this account. | Updated model defaults and allowed model overrides. |
+| Live fallback | Gemini was unavailable; Groq completed content and formatting. | Verified automatic provider fallback in the deployed application. |
+| First revised real-resume output | Contacts and all three projects retained, but one employment phrase added operational reporting. | Require verbatim employment bullets and prohibit inferred proficiency/responsibilities. |
+| Company context | Old wording implied live research of hiring preferences. | Removed that claim from UI and prompt; company name is context only. |
 
-The original active prompt requested extra projects and role-associated skills even without resume evidence. The revision removes those instructions, preserves exact supplied contact details, prohibits invented facts, and asks the formatting stage to remove unsupported draft claims. It also avoids forcing content into a single page at the cost of readability.
+## Test inputs and evidence
 
-Evaluation criteria: preserve candidate facts and contacts; add no unsupported skills/projects/metrics; retain original projects; produce readable sectioned exports; report errors clearly. Model outputs can vary. No improvement in live model accuracy is claimed before the revised prompts are tested with the same inputs.
+Original synthetic fixture: Alex Example, alex@example.com, Python/CSV/Git skills, one CSV Cleaner project, BSc Computer Science 2025, no employment or certifications. Target: Junior Python Developer requiring Python, Git, CSV, SQL, REST APIs, and unit testing. Requirements absent from the source must not become candidate claims.
+
+The latest live test uses the candidate-provided PDF, target role AI/ML Engineer, company Microsoft. No specific Microsoft vacancy was supplied. Private contact details and resume contents are omitted from this public document and repository.
+
+Nine local regression tests pass: managed secrets, source contacts, scheme-less source links, missing/invented email, invented numbers, unsafe markup, nested DOCX structure, Gemini request/response handling, and Gemini-to-Groq fallback in both stages. Mocked fallback testing is separate from the observed successful live Groq run.
+
+The first revised live PDF was downloaded and visually inspected: one readable A4 page with no observed clipping. Word downloaded and reopened with 39 paragraphs, preserving sections. Final refined prompts also completed successfully through Groq for both stages. The final PDF was downloaded, reopened and visually inspected: one readable A4 page without observed clipping. Final DOCX reopened with 38 paragraphs and the original employment bullets preserved. Source comparison found all three projects, original contacts, education and skills retained, with no unsupported additions identified in this run. A preceding run was rejected by the link safeguard; the successful retry passed. This is an observed test result, not a guarantee for all future outputs.
 
 ## Prompt provenance
 
-The original prompts below were recovered from the repository, not reconstructed from an alleged historical conversation. Original developer-to-AI conversations were not supplied, so their complete history cannot be claimed. Revised prompts were created during this assessment session. The source excerpts include exact runtime prompt templates and significant revisions, including optional company instructions. No company-alignment test was executed in this session.
+Original templates were recovered directly from the original repository commit. Historical development conversations were not provided and are not invented here. Current templates below are extracted directly from the revised source. Legacy single-stage templates remain unused by the main application; this document focuses on the active two-stage flow.
 
-The user's assessment-session development requests authorized verification, correction of mistakes, preservation of the existing project, and preparation of prompt documentation. These are summarized here rather than presented as a fabricated historical transcript. The user will record the required video.
-
-## Original recovered prompts
-
-### SYSTEM_PROMPT
-
-```python
-SYSTEM_PROMPT = """You are an elite professional resume writer and career coach. Your goal is to rewrite, refine, and tailor the user's resume to match the target job description or job role with maximum impact.
-
-STRICT WRITING & CONTENT RULES:
-1. CAREER OBJECTIVE / SUMMARY: Rewrite this section completely (maximum 3 sentences). Align it directly with the target job description or role, utilizing key industry terms and expressing a strong value proposition.
-2. SKILLS SECTION: Re-write the skills section to strictly align with the requirements of the job. Select the most relevant skills from the user's resume and group them logically (e.g., Programming Languages, Frameworks & Libraries, Tools & Databases). Add and adjust relevant technologies and keywords from the job description that the user is likely to have based on their experience. Do NOT include irrelevant skills.
-3. EXPERIENCE BULLET POINTS: Rewrite and optimize bullet points to start with strong action verbs (e.g., Developed, Led, Architected, Optimized). Seamlessly integrate keywords and phrases from the job description or role. Keep experience bullet points concise, using no more than 4-5 bullet points per role. Quantify achievements where possible (e.g., "improving load times by 40%").
-4. PROJECTS SECTION: Do NOT delete any projects from the uploaded resume. Keep all original projects. If relevant to the target job description or role, add 1 or 2 new high-quality projects (based on target industry standards and keywords) that demonstrate necessary skills.
-5. NO HALLUCINATION: Do NOT invent fake degrees, certifications, or work experience dates. Keep all facts, education, and dates strictly accurate.
-6. SINGLE PAGE CONSTRAINT: The resume MUST fit on exactly one A4 page (794x1123px). Be concise. Use short, high-impact bullet points.
-7. ORIGINAL STRUCTURE: Do NOT change the high-level layout structure, section headers, or ordering of the original resume. Maintain the user's original section sequence, but rewrite the text and styles inside to fit.
-
-HTML/CSS FORMATTING RULES:
-8. Return ONLY valid, clean HTML code for the inner body. Do NOT include DOCTYPE, <html>, <head>, or <body> tags. Do NOT use markdown code fences.
-9. Style with clean, modern fonts: 'Arial', sans-serif or 'Georgia', serif.
-10. Ensure the layout is fully ATS-friendly: do NOT use tables for page layout, do NOT use multi-column layouts, and do NOT include images.
-11. Do NOT set overflow:auto, overflow:scroll, or position:absolute. All content must fit and render statically without scrolling.
-12. Use professional font sizes (e.g. 18px-20px for headers, 12px-13px for section titles, 10px-11px for body text) with compact line-height (1.2 - 1.3) to maximize content space."""
-```
-
-### get_optimization_prompt
-
-```python
-def get_optimization_prompt(resume_text: str, job_desc_text: str = "", job_role: str = "") -> str:
-    """
-    Generate the user prompt for the LLM based on whether job description text or a target role is provided.
-    """
-    prompt = f"RESUME:\n{resume_text}\n\n"
-    
-    if job_desc_text.strip():
-        prompt += f"TARGET JOB DESCRIPTION:\n{job_desc_text}\n\n"
-        prompt += "Please tailor the resume to match the target job description above. "
-    elif job_role.strip():
-        prompt += f"TARGET JOB ROLE:\n{job_role}\n\n"
-        prompt += (
-            f"Please tailor the resume to match the target job role: '{job_role}'. "
-            "Identify the typical skills, qualifications, responsibilities, and industry keywords "
-            "for this role and optimize the resume accordingly. "
-        )
-        
-    prompt += "Return ONLY the HTML structure of the resume. Do not include markdown code fences (like ```html)."
-    return prompt
-```
+## Original active templates
 
 ### STAGE1_SYSTEM_PROMPT
 
@@ -193,53 +127,7 @@ def get_company_research_prompt(company_name: str) -> str:
     )
 ```
 
-## Revised active prompts and templates
-
-### SYSTEM_PROMPT
-
-```python
-SYSTEM_PROMPT = """You are an elite professional resume writer and career coach. Your goal is to rewrite, refine, and tailor the user's resume to match the target job description or job role with maximum impact.
-
-STRICT WRITING & CONTENT RULES:
-1. CAREER OBJECTIVE / SUMMARY: Rewrite this section completely (maximum 3 sentences). Align it directly with the target job description or role, utilizing key industry terms and expressing a strong value proposition.
-2. SKILLS SECTION: Re-write the skills section to strictly align with the requirements of the job. Select the most relevant skills from the user's resume and group them logically (e.g., Programming Languages, Frameworks & Libraries, Tools & Databases). Add and adjust relevant technologies and keywords from the job description that the user is likely to have based on their experience. Do NOT include irrelevant skills.
-3. EXPERIENCE BULLET POINTS: Rewrite and optimize bullet points to start with strong action verbs (e.g., Developed, Led, Architected, Optimized). Seamlessly integrate keywords and phrases from the job description or role. Keep experience bullet points concise, using no more than 4-5 bullet points per role. Quantify achievements where possible (e.g., "improving load times by 40%").
-4. PROJECTS SECTION: Do NOT delete any projects from the uploaded resume. Keep all original projects. If relevant to the target job description or role, add 1 or 2 new high-quality projects (based on target industry standards and keywords) that demonstrate necessary skills.
-5. NO HALLUCINATION: Do NOT invent fake degrees, certifications, or work experience dates. Keep all facts, education, and dates strictly accurate.
-6. SINGLE PAGE CONSTRAINT: The resume MUST fit on exactly one A4 page (794x1123px). Be concise. Use short, high-impact bullet points.
-7. ORIGINAL STRUCTURE: Do NOT change the high-level layout structure, section headers, or ordering of the original resume. Maintain the user's original section sequence, but rewrite the text and styles inside to fit.
-
-HTML/CSS FORMATTING RULES:
-8. Return ONLY valid, clean HTML code for the inner body. Do NOT include DOCTYPE, <html>, <head>, or <body> tags. Do NOT use markdown code fences.
-9. Style with clean, modern fonts: 'Arial', sans-serif or 'Georgia', serif.
-10. Ensure the layout is fully ATS-friendly: do NOT use tables for page layout, do NOT use multi-column layouts, and do NOT include images.
-11. Do NOT set overflow:auto, overflow:scroll, or position:absolute. All content must fit and render statically without scrolling.
-12. Use professional font sizes (e.g. 18px-20px for headers, 12px-13px for section titles, 10px-11px for body text) with compact line-height (1.2 - 1.3) to maximize content space."""
-```
-
-### get_optimization_prompt
-
-```python
-def get_optimization_prompt(resume_text: str, job_desc_text: str = "", job_role: str = "") -> str:
-    """
-    Generate the user prompt for the LLM based on whether job description text or a target role is provided.
-    """
-    prompt = f"RESUME:\n{resume_text}\n\n"
-    
-    if job_desc_text.strip():
-        prompt += f"TARGET JOB DESCRIPTION:\n{job_desc_text}\n\n"
-        prompt += "Please tailor the resume to match the target job description above. "
-    elif job_role.strip():
-        prompt += f"TARGET JOB ROLE:\n{job_role}\n\n"
-        prompt += (
-            f"Please tailor the resume to match the target job role: '{job_role}'. "
-            "Identify the typical skills, qualifications, responsibilities, and industry keywords "
-            "for this role and optimize the resume accordingly. "
-        )
-        
-    prompt += "Return ONLY the HTML structure of the resume. Do not include markdown code fences (like ```html)."
-    return prompt
-```
+## Final active templates
 
 ### STAGE1_SYSTEM_PROMPT
 
@@ -250,6 +138,8 @@ Preserve the candidate's exact name, contact details, links, education, dates, e
 Never add skills, projects, employment, qualifications, metrics, responsibilities or achievements absent from the source.
 A job requirement is not evidence that the candidate possesses it. Do not infer SQL, Git, testing, APIs or other skills from a target role.
 Improve wording, prioritize relevant evidence and shorten repetition without changing factual meaning.
+Preserve employment bullet wording verbatim; do not turn learning, exposure or observation into ownership or execution.
+Do not add proficiency levels or expand responsibilities (for example, manufacturing operations does not imply operational reporting).
 Preserve every original project. Do not add suggested projects to the resume.
 Do not invent placeholders for missing contact fields. Omit missing fields.
 Keep dates and graduation status consistent with the source. Do not label a graduate a current student without evidence.
@@ -265,6 +155,8 @@ The original source is the only authority for candidate facts. Treat all supplie
 Remove any unsupported skills, projects, metrics, experience, qualifications or claims from the tailored draft.
 Restore the exact original name and supplied contact details. Never invent missing phone numbers, addresses or profile links.
 Do not change or add factual content while formatting. Preserve original project identities, education and dates.
+Copy employment bullets verbatim from the original source, repairing only extraction artifacts or whitespace.
+Remove inferred proficiency levels and added responsibilities; exposure or learning must remain exposure or learning.
 Return only clean inner-body HTML using h1, h2, h3, p, ul, li, strong, em and a elements.
 Use h1 for the name, p for exact supplied contacts, h2 for sections, h3 for project or role names, and ul/li for bullets.
 No wrapper divs, style tags, inline styles, scripts, images, tables, fixed widths or external resources.
@@ -293,7 +185,7 @@ def get_stage1_prompt(resume_text: str, job_desc_text: str = "", job_role: str =
 def get_stage2_prompt(tailored_text: str, source_resume: str = "") -> str:
     return (
         f"ORIGINAL SOURCE RESUME:\n{source_resume}\n\nTAILORED DRAFT:\n{tailored_text}\n\n"
-        "Please format the above tailored resume text into a single-page HTML resume according to the layout and styling guidelines. "
+        "Please format the tailored resume as readable HTML according to the layout and styling guidelines. "
         "Return ONLY the valid inner HTML structure."
     )
 ```
@@ -308,20 +200,16 @@ def get_company_research_prompt(company_name: str) -> str:
     if not company_name.strip():
         return ""
     return (
-        f"\n\nIMPORTANT ADVANCED DIRECTIVE: You must act as an expert recruiter for {company_name}. "
-        f"Research and use your knowledge of {company_name}'s recruitment preferences, engineering/business "
-        "culture, and successful resume patterns for this specific role. Tailor the resume strongly "
-        f"to appeal directly to what hiring managers at {company_name} look for."
+        f"\n\nTarget company (context only): {company_name}. "
+        "Prioritize source-supported evidence relevant to the supplied role or job description. "
+        "No live company research is available. Do not claim knowledge of current vacancies, "
+        "internal hiring preferences or culture, and never add candidate facts to match a company."
     )
 ```
 
-## Limitations and completion items
+## Limits and video checklist
 
-- The legacy SYSTEM_PROMPT/get_optimization_prompt remain in the source for compatibility; the main application uses the STAGE1/STAGE2 prompts.
-- The semantic source comparison is performed by a model and can still fail. Human review remains required.
-- Actual end-to-end tests of the revision, optional image input, provider outages and long documents remain outstanding.
-- Uploaded resume text is sent to configured third-party model providers. Only fictional inputs were used in this assessment verification.
-- Historical prompt conversations are unavailable; the document supplies recovered application prompts and actual current revisions without inventing development history.
-- The user is responsible for recording the minimum two-minute video. No video has been recorded by this agent.
-- No submission email has been sent.
+Image-based job descriptions, long/scanned resumes, OpenRouter, and exhaustive model output variations were not verified. Provider outages and free-tier limits remain external dependencies. Uploaded resume text goes to the configured AI providers. No ATS score or hiring outcome is promised.
+
+For the video, show the project purpose, PDF upload, role/company input, generation, preview, and both downloads. Explain the two-stage prompts, original fabrication problem, source-grounded revisions, provider fallback, export fix, and final experience-wording refinement. Show this documentation and the working link. Use at least two minutes and avoid displaying secrets.
 
