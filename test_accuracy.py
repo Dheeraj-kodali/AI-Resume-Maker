@@ -8,6 +8,19 @@ from document_parser import generate_docx_bytes
 SOURCE = 'Alex Example\nalex@example.com\nPython, Git\nCSV Cleaner\nBSc 2025'
 
 class AccuracyTests(unittest.TestCase):
+    def test_gemini_model_and_text_parts(self):
+        import api_router
+        from unittest.mock import Mock
+        response = Mock(status_code=200)
+        response.json.return_value = {'candidates': [{'content': {'parts': [
+            {'text': 'internal', 'thought': True}, {'text': 'Resume'}, {'text': 'Details'}]}}]}
+        with patch.object(api_router, 'get_key', return_value=''), patch.object(api_router.requests, 'post', return_value=response) as post:
+            self.assertEqual(api_router.call_gemini('test-key', 'system', 'input', ''), 'Resume\nDetails')
+        self.assertTrue(post.call_args.args[0].endswith('gemini-3.8-flash:generateContent'))
+        self.assertNotIn('test-key', post.call_args.args[0])
+        self.assertEqual(post.call_args.kwargs['headers']['x-goog-api-key'], 'test-key')
+        self.assertNotIn('generationConfig', post.call_args.kwargs['json'])
+
     def test_managed_secrets_without_local_file(self):
         import api_router
         with patch.dict('os.environ', {}, clear=True), patch.object(api_router.st, 'secrets', {'GEMINI_KEY_1': 'fictional-test-key'}), patch.object(api_router, 'secrets_file_exists', return_value=False):
